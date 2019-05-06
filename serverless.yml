@@ -1,0 +1,43 @@
+service: my-serverless-configuration-${self:provider.stage}
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: us-east-1
+  deploymentBucket:
+    serverSideEncryption: AES256
+    name: my-s3-bucket
+  tracing:
+    lambda: true
+
+functions:
+  my-lambda:
+    handler: src/index.handler
+    name: my-lambda-${self:provider.stage}
+    runtime: nodejs8.10
+    timeout: 120
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+            - MySQS
+            - Arn
+          batchSize: 1
+
+resources:
+  Resources:
+    MySQS:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: my-sqs-${self:provider.stage}
+
+custom:
+  localstack:
+    debug: true
+    host: http://localhost
+    stages:
+      - local
+
+plugins:
+  - serverless-sam
+  - serverless-localstack
