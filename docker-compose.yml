@@ -1,0 +1,31 @@
+version: '3.7'
+
+services:
+  localstack:
+    container_name: my-localstack
+    privileged: true
+    image: localstack/localstack:0.9.0
+    ports:
+      - "4567-4593:4567-4593"
+      - "${PORT_WEB_UI-7777}:${PORT_WEB_UI-7777}"
+    networks:
+      - localstack-network
+    environment:
+      - SERVICES=sts,s3,lambda,cloudformation,iam,cloudwatch,sqs,dynamodb
+      - DEBUG=true
+      - DATA_DIR=/tmp/localstack
+      - PORT_WEB_UI=${PORT_WEB_UI- }
+      - LAMBDA_EXECUTOR=docker
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - LAMBDA_DOCKER_NETWORK=localstack-network
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "localstack-volume:/tmp/localstack"
+
+volumes:
+  localstack-volume:
+    name: localstack-volume
+
+networks:
+  localstack-network:
+    name: localstack-network
