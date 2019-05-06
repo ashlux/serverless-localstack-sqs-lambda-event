@@ -1,0 +1,1 @@
+# serverless-localstack-sqs-lambda-event
